@@ -31,3 +31,22 @@ while getopts "hdv" option; do
             ;;
     esac
 done
+
+if [ -z "$DEPLOY_LOCATION" ]
+then
+    # Input location 
+    echo -n "Enter location (e.g. eastus2): "
+    stty_orig=`stty -g` # save original terminal setting.
+    read location       # read the location
+    stty $stty_orig     # restore terminal setting.
+    if [ -z "$location" ] 
+    then
+        location="eastus2"
+    fi
+else
+    location="$DEPLOY_LOCATION"
+fi
+export TF_VAR_LOCATION="$location"
+echo ""
+echo "--> Deployment in $location location ..."
+echo ""
