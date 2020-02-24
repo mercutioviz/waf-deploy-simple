@@ -1,6 +1,6 @@
 ## Cloud Installer Helper Functions
 
-function cloud_cli_available {
+function cloud_cli_available() {
     # return true if CLI stuff is found
     found_it=0
     case $1 in
@@ -22,23 +22,23 @@ function cloud_cli_available {
     return "$found_it"
 }
 
-function get_vms {}
+function get_vms() {}
 
-function get_resource_groups {}
+function get_resource_groups() {}
 
-function get_vnets {}
+function get_vnets() {}
 
-function get_pips {}
+function get_pips() {}
 
-function get_lbs {}
+function get_lbs() {}
 
-function get_route_tables {}
+function get_route_tables() {}
 
-function get_routes {}
+function get_routes() {}
 
-function get_available_cpus {
+function get_available_cpus() {
     # How many vCPUs available to deploy in this region
 
 }
 
-function get_regions {}
+function get_regions() {}
