@@ -22,7 +22,7 @@ DEPLOY_LOCATION='eastus2'
 DEPLOY_PREFIX=''
 DEPLOY_PASSWORD='1234qwerASDF'
 
-if ! options=$(getopt -o hdvr: -l help,debug,verbose,rg: -- "$@")
+if ! options=$(getopt -o hdvr:p: -l help,debug,verbose,rg:,password: -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -41,27 +41,13 @@ do
     -v|--verbose) DEBUG='true' ;;
     # for options with required arguments, an additional shift is required
     -r|--rg) RESOURCE_GROUP="$2" ; shift;;
+    -p|--password) DEPLOY_PASSWORD="$2" ; shift;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
     (*) break;;
     esac
     shift
 done
-
-# while getopts "hdv" option; do
-#     case "${option}" in
-#         h) 
-#             echo "WAF installer"
-#             exit 0
-#             ;;
-#         d) DEUBG='true' ;;
-#         v) VERBOSE='true' ;;
-#         \?)
-#             echo "Invalid option: -$OPTARG" >&2
-#             exit 1
-#             ;;
-#     esac
-# done
 
 if [ -z "$DEPLOY_LOCATION" ]
 then
@@ -98,7 +84,12 @@ else
 fi
 export TF_VAR_PREFIX="$prefix"
 echo ""
-echo "--> Using prefix $prefix for all resources ..."
+if [ -z "$DEPLOY_PREFIX"]
+then
+    echo "--> No prefix being used ..."
+else
+    echo "--> Using prefix $prefix for all resources ..."
+fi
 echo ""
 
 if [ -z "$DEPLOY_PASSWORD" ]
