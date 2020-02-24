@@ -20,9 +20,9 @@ DEBUG='false'
 VERBOSE='false'
 DEPLOY_LOCATION='eastus2'
 DEPLOY_PREFIX=''
-DEPLOY_PASSWORD='1234qwerASDF'
+RESOURCE_GROUP='rg-cuda-waf'
 
-if ! options=$(getopt -o hdvr:p: -l help,debug,verbose,rg:,password: -- "$@")
+if ! options=$(getopt -o hdvr:p:l: -l help,debug,verbose,rg:,password:,location: -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -41,6 +41,7 @@ do
     -v|--verbose) DEBUG='true' ;;
     # for options with required arguments, an additional shift is required
     -r|--rg) RESOURCE_GROUP="$2" ; shift;;
+    -l|--location) DEPLOY_LOCATION="$2" ; shift;;
     -p|--password) DEPLOY_PASSWORD="$2" ; shift;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
@@ -48,6 +49,8 @@ do
     esac
     shift
 done
+
+## Choose deployment type: new or existing infrastructure?
 
 if [ -z "$DEPLOY_LOCATION" ]
 then
@@ -100,6 +103,10 @@ then
     stty -echo          # turn-off echoing.
     read passwd         # read the password
     stty $stty_orig     # restore terminal setting.
+    if [ -z "$passwd" ] 
+    then
+        passwd="1234qwerASDF"
+    fi
     echo ""
 else
     passwd="$DEPLOY_PASSWORD"
