@@ -23,8 +23,9 @@ VERBOSE='false'
 DEPLOY_LOCATION='eastus2'
 DEPLOY_PREFIX=''
 RESOURCE_GROUP='rg-cuda-waf'
+CLOUD='Azure'
 
-if ! options=$(getopt -o hdvr:p:l: -l help,debug,verbose,rg:,password:,location: -- "$@")
+if ! options=$(getopt -o hdvr:p:l:c: -l help,debug,verbose,rg:,password:,location:,cloud: -- "$@")
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -45,12 +46,22 @@ do
     -r|--rg) RESOURCE_GROUP="$2" ; shift;;
     -l|--location) DEPLOY_LOCATION="$2" ; shift;;
     -p|--password) DEPLOY_PASSWORD="$2" ; shift;;
+    -c|--cloud) CLOUD="$2" ; shift;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
     (*) break;;
     esac
     shift
 done
+
+## Verify cloud
+if [ cloud_cli_available($CLOUD) ]
+then
+    dprint("Found cloud: $CLOUD")
+else
+    echo "Did not find commands for cloud: $CLOUD"
+    exit 1
+fi
 
 ## Choose deployment type: new or existing infrastructure?
 

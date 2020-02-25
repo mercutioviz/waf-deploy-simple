@@ -1,5 +1,12 @@
 ## Cloud Installer Helper Functions
 
+function dprint() {
+    if [ "$DEBUG" == 'true' ]
+    then
+        echo "$@"
+    fi
+}
+
 function cloud_cli_available() {
     # return true if CLI stuff is found
     found_it=0
