@@ -24,6 +24,7 @@ DEPLOY_LOCATION='eastus2'
 DEPLOY_PREFIX=''
 RESOURCE_GROUP='rg-cuda-waf'
 CLOUD='Azure'
+CLOUD_FOUND='False'
 
 if ! options=$(getopt -o hdvr:p:l:c: -l help,debug,verbose,rg:,password:,location:,cloud: -- "$@")
 then
@@ -54,10 +55,13 @@ do
     shift
 done
 
+dprint "Debug on..."
+
 ## Verify cloud
-if [ cloud_cli_available($CLOUD) ]
+cloud_cli_available "$CLOUD"
+if [[ "$CLOUD_FOUND" -eq "False" ]]
 then
-    dprint("Found cloud: $CLOUD")
+    dprint "$CLOUD availability: $CLOUD_FOUND"
 else
     echo "Did not find commands for cloud: $CLOUD"
     exit 1
@@ -120,7 +124,7 @@ then
     then
         passwd="1234qwerASDF"
     fi
-    echo ""
+    echo "Using default passwd '$passwd'"
 else
     passwd="$DEPLOY_PASSWORD"
     echo ""

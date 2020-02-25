@@ -1,22 +1,22 @@
 ## Cloud Installer Helper Functions
 
-function dprint() {
+dprint() {
     if [ "$DEBUG" == 'true' ]
     then
-        echo "$@"
+        echo "$@" 1>&2
     fi
 }
 
-function cloud_cli_available() {
+cloud_cli_available() {
     # return true if CLI stuff is found
-    found_it=0
-    case $1 in
+    case "$1" in
         Azure|azure|Az|AZ|az)
             # check for Azure CLI
-            myaz=`az --version 2>&1 | grep azure-cli`
+            myaz=`az --version | grep azure-cli`
             if [ ! -z "$myaz" ]
             then
-                found_it=1
+                CLOUD_FOUND="True"
+                dprint "Found Azure ($myaz)"
             fi
             ;;
         GCP|gcp)
@@ -26,7 +26,8 @@ function cloud_cli_available() {
             # check for AWS CLI
             ;;
     esac
-    return "$found_it"
+
+    return
 }
 
 function get_vms() {
