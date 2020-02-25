@@ -22,23 +22,47 @@ function cloud_cli_available() {
     return "$found_it"
 }
 
-function get_vms() {}
+function get_vms() {
+    #
+    return 0
+}
 
-function get_resource_groups() {}
+function get_resource_groups() {
+    #
+    return 0
+}
 
-function get_vnets() {}
+function get_vnets() {
+    #
+    return 0
+}
 
-function get_pips() {}
+function get_pips() {
+    #
+    return 0
+}
 
-function get_lbs() {}
+function get_lbs() {
+    #
+    return 0
+}
 
-function get_route_tables() {}
+function get_route_tables() {
+    #
+    return 0
+}
 
-function get_routes() {}
+function get_routes() {
+    #
+    return 0
+}
 
 function get_available_cpus() {
     # How many vCPUs available to deploy in this region
-
+    return 1
 }
 
-function get_regions() {}
+function get_regions() {
+    #
+    return 0
+}
