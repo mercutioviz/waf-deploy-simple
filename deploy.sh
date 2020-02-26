@@ -187,6 +187,9 @@ else
     rglist=''
     get_resource_groups
     echo "Select RG:"
-    echo $rglist
-    selection=''
+    my_selection=''
+    get_selection($rglist)
+    rg_cfg=my_selection
 fi
+
+echo "Using RG '$rg_cfg'"

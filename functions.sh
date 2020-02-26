@@ -13,6 +13,20 @@ get_selection() {
         dprint "Call to get_selection function w/o an argument; no selection set"
     else
         #
+        select my_selection in `echo $@`;
+        do 
+            echo "You chose '${my_selection}' - press <enter> to accept, any other key select again"
+            stty_orig=`stty -g` # save original terminal setting.
+            stty -echo          # turn-off echoing.
+            read ans            # read the RG
+            stty $stty_orig     # restore terminal setting.
+            if [ -z "$ans" ] 
+            then
+                break 
+            else
+                echo ""
+            fi
+        done
     fi
 }
 
