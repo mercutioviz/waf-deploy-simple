@@ -82,7 +82,7 @@ then
     if [ -z "$type" ] 
     then
         type="new"
-    elif [ "$type" -eq "e" ]
+    elif [ "$type" = "e" ]
     then
         type='existing'
     else
@@ -167,7 +167,7 @@ DB_PASSWORD="$passwd"
 
 rg_cgf="$prefix-RG"
 
-if [ "$type" -eq "new" ]
+if [ "$type" = "new" ]
 then
     # Input resource group
     echo -n "Enter resource group (<enter>=$rg_cfg): "
@@ -177,7 +177,7 @@ then
     stty $stty_orig     # restore terminal setting.
     if [ -z "$ans" ] 
     then
-        # 
+        dprint "Using default RG"
     else
         rg_cfg="$ans"
     fi
@@ -188,8 +188,8 @@ else
     get_resource_groups
     echo "Select RG:"
     my_selection=''
-    get_selection($rglist)
-    rg_cfg=my_selection
+    get_selection "$rglist"
+    rg_cfg=${my_selection}
 fi
 
 echo "Using RG '$rg_cfg'"
