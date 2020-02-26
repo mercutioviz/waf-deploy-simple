@@ -7,5 +7,11 @@ fi
 location="$1"
 # az group list --query "[?location=='eastus2']" | grep name
 myrgs=`/usr/bin/az group list --query "[?location=='${location}']" | json_pp | jq -r '.[] | .name'`
-echo "Found Resource Groups in $location:"
-echo "$myrgs"
+#echo "Found Resource Groups in $location:"
+#echo "$myrgs"
+echo "Select your RG:"
+select rgsel in `echo ${myrgs}`;
+do
+    echo "You chose ${rgsel}"
+    break
+done
