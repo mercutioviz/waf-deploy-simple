@@ -184,5 +184,9 @@ then
     echo "Create resource group named '$rg_cfg'"
 else
     # List available RGs and select
-
+    rglist=''
+    get_resource_groups
+    echo "Select RG:"
+    echo $rglist
+    selection=''
 fi

@@ -7,6 +7,15 @@ dprint() {
     fi
 }
 
+get_selection() {
+    if [ -z "$@" ]
+    then
+        dprint "Call to get_selection function w/o an argument; no selection set"
+    else
+        #
+    fi
+}
+
 cloud_cli_available() {
     # return true if CLI stuff is found
     case "$1" in
@@ -40,7 +49,7 @@ function get_resource_groups() {
     case "$CLOUD" in
     Azure)
         # Get Azure RGs
-        
+        rglist=`/usr/bin/az group list --query "[?location=='${location}']" | json_pp | jq -r '.[] | .name'`
         ;;
     AWS)
         # Get AWS RGs
