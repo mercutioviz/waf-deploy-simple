@@ -165,7 +165,10 @@ fi
 PASSWORD="$passwd"
 DB_PASSWORD="$passwd"
 
-rg_cgf="$prefix-RG"
+if [ ! -z "$prefix" ]
+then
+    rg_cgf="${prefix}-RG"
+fi
 
 if [ "$type" = "new" ]
 then
@@ -182,6 +185,9 @@ then
         rg_cfg="$ans"
     fi
     echo "Create resource group named '$rg_cfg'"
+
+    # Input VNet/VPC name
+
 else
     # List available RGs and select
     rglist=''
@@ -190,6 +196,10 @@ else
     my_selection=''
     get_selection "$rglist"
     rg_cfg=${my_selection}
+
+    # List available VNets/VPCs and select
+    vnetlist=''
+    get_vnets
 fi
 
 echo "Using RG '$rg_cfg'"
