@@ -37,6 +37,22 @@ function get_vms() {
 
 function get_resource_groups() {
     #
+    case "$CLOUD" in
+    Azure)
+        # Get Azure RGs
+        
+        ;;
+    AWS)
+        # Get AWS RGs
+
+        ;;
+    GCP)
+        # Get GCP RGs
+
+        ;;
+    (*) break;;
+    esac
+
     return 0
 }
 

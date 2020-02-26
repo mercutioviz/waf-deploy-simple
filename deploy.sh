@@ -22,11 +22,14 @@ DEBUG='false'
 VERBOSE='false'
 DEPLOY_LOCATION='eastus2'
 DEPLOY_PREFIX=''
+DEPLOY_TYPE=''
 RESOURCE_GROUP='rg-cuda-waf'
 CLOUD='Azure'
 CLOUD_FOUND='False'
 
-if ! options=$(getopt -o hdvr:p:l:c: -l help,debug,verbose,rg:,password:,location:,cloud: -- "$@")
+if ! options=$(getopt -o hdvr:p:l:c:t: \
+        -l help,debug,verbose,rg:,password:,location:,cloud:,type: \
+        -- "$@") #"
 then
     # something went wrong, getopt will put out an error message for us
     exit 1
@@ -48,6 +51,7 @@ do
     -l|--location) DEPLOY_LOCATION="$2" ; shift;;
     -p|--password) DEPLOY_PASSWORD="$2" ; shift;;
     -c|--cloud) CLOUD="$2" ; shift;;
+    -t|--type) DEPLOY_TYPE="$2" ; shift;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
     (*) break;;
@@ -68,6 +72,33 @@ else
 fi
 
 ## Choose deployment type: new or existing infrastructure?
+if [ -z "$DEPLOY_TYPE" ]
+then
+    # Input type 
+    echo -n "Enter type: [n]ew or [e]xisting (<enter>=new): "
+    stty_orig=`stty -g` # save original terminal setting.
+    read type           # read the type
+    stty $stty_orig     # restore terminal setting.
+    if [ -z "$type" ] 
+    then
+        type="new"
+    elif [ "$type" -eq "e" ]
+    then
+        type='existing'
+    else
+        type='new'
+    fi
+else
+    if [ "$DEPLOY_TYPE" -eq "e" || "$DEPLOY_TYPE" -eq "existing" ]
+    then
+        type='existing'
+    else
+        type='new'
+    fi
+fi
+echo ""
+echo "--> Deployment type is $type ..."
+echo ""
 
 if [ -z "$DEPLOY_LOCATION" ]
 then
@@ -134,5 +165,24 @@ fi
 PASSWORD="$passwd"
 DB_PASSWORD="$passwd"
 
-
 rg_cgf="$prefix-RG"
+
+if [ "$type" -eq "new" ]
+then
+    # Input resource group
+    echo -n "Enter resource group (<enter>=$rg_cfg): "
+    stty_orig=`stty -g` # save original terminal setting.
+    stty -echo          # turn-off echoing.
+    read ans            # read the RG
+    stty $stty_orig     # restore terminal setting.
+    if [ -z "$ans" ] 
+    then
+        # 
+    else
+        rg_cfg="$ans"
+    fi
+    echo "Create resource group named '$rg_cfg'"
+else
+    # List available RGs and select
+
+fi
