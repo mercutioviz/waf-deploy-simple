@@ -62,8 +62,10 @@ done
 dprint "Debug on..."
 
 ## Verify cloud
+dprint "Cloud found before test: $CLOUD_FOUND"
 cloud_cli_available "$CLOUD"
-if [[ "$CLOUD_FOUND" -eq "False" ]]
+dprint "Cloud found after test: $CLOUD_FOUND"
+if [ "$CLOUD_FOUND" = "True" ]
 then
     dprint "$CLOUD availability: $CLOUD_FOUND"
 else
@@ -89,7 +91,8 @@ then
         type='new'
     fi
 else
-    if [ "$DEPLOY_TYPE" -eq "e" || "$DEPLOY_TYPE" -eq "existing" ]
+    dprint "Commd line arg for type is: '$DEPLOY_TYPE'"
+    if [[ "$DEPLOY_TYPE" = "'e'" || "$DEPLOY_TYPE" = "'existing'" ]]
     then
         type='existing'
     else
@@ -112,7 +115,8 @@ then
         location="eastus2"
     fi
 else
-    location="$DEPLOY_LOCATION"
+    # args passed in via CLI have quotes; xargs handily unqoutes them
+    location="`echo $DEPLOY_LOCATION | xargs`" 
 fi
 export TF_VAR_LOCATION="$location"
 echo ""
@@ -131,7 +135,7 @@ then
         prefix=""
     fi
 else
-    prefix="$DEPLOY_PREFIX"
+    prefix="`echo $DEPLOY_PREFIX | xargs`"
 fi
 export TF_VAR_PREFIX="$prefix"
 echo ""
@@ -157,7 +161,7 @@ then
     fi
     echo "Using default passwd '$passwd'"
 else
-    passwd="$DEPLOY_PASSWORD"
+    passwd="`echo $DEPLOY_PASSWORD | xargs`"
     echo ""
     echo "--> Using password found in env variable DEPLOY_PASSWORD ..."
     echo ""
@@ -189,17 +193,23 @@ then
     # Input VNet/VPC name
 
 else
-    # List available RGs and select
+    # Start collecting info from this subscription
+    echo "Reading RGs..."
     rglist=''
     get_resource_groups
+    echo "Reading VNets..."
+    vnetlist=''
+    get_vnets
+
+    # List available RGs and select
     echo "Select RG:"
     my_selection=''
     get_selection "$rglist"
-    rg_cfg=${my_selection}
+    rg_cfg="${my_selection}"
 
     # List available VNets/VPCs and select
-    vnetlist=''
-    get_vnets
+    echo "Found VNets in ${location}:"
+    echo "${vnetlist}"
 fi
 
 echo "Using RG '$rg_cfg'"
