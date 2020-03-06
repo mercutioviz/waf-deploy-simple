@@ -82,7 +82,7 @@ function get_resource_groups() {
 function get_vnets() {
     #
     vnet_json=`az network vnet list --query "[?location=='${location}']" | json_pp`
-    dprint "VNet JSON data: $@"
+    dprint "VNet JSON data: ${vnet_json}"
     vnet_list=`echo "${vnet_json}" | jq -r '.[] | .name'`
     return 0
 }
