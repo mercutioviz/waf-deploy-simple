@@ -210,6 +210,15 @@ else
     # List available VNets/VPCs and select
     echo "Found VNets in ${location}:"
     echo "${vnetlist}"
+    echo "Select VNet:"
+    my_selection=''
+    vnet_idx=''
+    get_selection "$vnetlist"
+    vnet_cfg="${my_selection}"
+
+    # Identify address space and enumerate subnets
+    
 fi
 
 echo "Using RG '$rg_cfg'"
+echo "Using VNet '$vnet_cfg'"
