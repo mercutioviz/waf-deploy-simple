@@ -215,10 +215,17 @@ else
     vnet_idx=''
     get_selection "$vnetlist"
     vnet_cfg="${my_selection}"
+    vnet_count=`echo $((`echo "${vnet_json}" | jq '. | length'`-1))`
+    for I in `seq 0 "${vnet_count}"`; do
+        this_vnet=`echo "${vnet_json}" | jq -r --arg 'I' $I '.[$I | tonumber] | .name'`
+        if [[ "${this_vnet}" == "${vnet_cfg}" ]]; then
+            vnet_idx="${I}"
+        fi
+    done
 
     # Identify address space and enumerate subnets
     
 fi
 
 echo "Using RG '$rg_cfg'"
-echo "Using VNet '$vnet_cfg'"
+echo "Using VNet '$vnet_cfg' (index $vnet_idx)"
