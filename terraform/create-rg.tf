@@ -226,28 +226,23 @@ resource "azurerm_network_interface" "nic-waf1" {
 
     ip_configuration {
         name                          = "IPConfig1"
-        subnet_id                     = azurerm_subnet.subnet_playground.id
+        subnet_id                     = azurerm_subnet.waf-subnet-lab.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.public_ip_bwaf.id
+        public_ip_address_id          = azurerm_public_ip.waf1-pip.id
     }
 }
 
 # Create network interface
 resource "azurerm_network_interface" "waf1-nic" {
-    name                      = "nic_bwaf"
-    location                  = "eastus"
-    resource_group_name       = azurerm_resource_group.rg_playground.name
-    network_security_group_id = azurerm_network_security_group.nsg_playground.id
+    name                      = var.waf2_nic_name
+    location                  = var.location
+    resource_group_name       = azurerm_resource_group.rg-lab.name
 
     ip_configuration {
-        name                          = "nic_cfg_bwaf"
-        subnet_id                     = azurerm_subnet.subnet_playground.id
+        name                          = "IPConfig1"
+        subnet_id                     = azurerm_subnet.waf-subnet-lab.id
         private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.public_ip_bwaf.id
-    }
-
-    tags = {
-        environment = "Terraform BWAF"
+        public_ip_address_id          = azurerm_public_ip.waf2-pip.id
     }
 }
 
