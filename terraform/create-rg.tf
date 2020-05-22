@@ -73,11 +73,56 @@ variable "waf1_nic_name" {
     description = "Enter the name for WAF NIC 1 "
 }
 
-# NICs for WAFs
 variable "waf2_nic_name" {
     type        = string
     description = "Enter the name for WAF NIC 2 "
 }
+
+# VM names for WAFs
+variable "waf1_vm_name" {
+    type        = string
+    description = "Enter the VM name for WAF 1 "
+}
+
+variable "waf2_vm_name" {
+    type        = string
+    description = "Enter the VM name for WAF 2 "
+}
+
+# WAF sku, i.e. byol or hourly
+variable "waf_sku" {
+    type        = string
+    description = "Enter the WAF sku ('byol' or 'hourly') "
+}
+
+# WAF VM size, i.e. DS1_v2, etc.
+variable "waf_vm_size" {
+    type        = string
+    description = "Enter the WAF VM size (DS1_v2, DS2_v2, etc.) "
+}
+
+# Admin password
+variable "admin_password" {
+    type        = string
+    description = "Enter the admin password"
+}
+
+# WAF license acceptance
+variable "waf_signature" {
+    type        = string
+    description = "Enter the WAF signature "
+}
+
+variable "waf_email" {
+    type        = string
+    description = "Enter the WAF email  "
+}
+
+variable "waf_organization" {
+    type        = string
+    description = "Enter the WAF organization "
+}
+
 
 ##########################################################################################################
 #                                              RESOURCES                                                 #
@@ -233,7 +278,7 @@ resource "azurerm_network_interface" "nic-waf1" {
 }
 
 # Create network interface
-resource "azurerm_network_interface" "waf1-nic" {
+resource "azurerm_network_interface" "nic-waf2" {
     name                      = var.waf2_nic_name
     location                  = var.location
     resource_group_name       = azurerm_resource_group.rg-lab.name
@@ -263,4 +308,90 @@ resource "azurerm_storage_account" "sa_boot_diag" {
     location                    = var.location
     account_tier                = "Standard"
     account_replication_type    = "LRS"
+}
+
+#create WAF1
+resource "azurerm_virtual_machine" "vm_waf1" {
+    name                  = var.waf1_vm_name
+    location              = var.location
+    plan {
+      publisher          = "barracudanetworks"
+      name               = var.waf_sku
+      product            = "waf"
+    }
+    
+    resource_group_name   = azurerm_resource_group.rg-lab.name
+    network_interface_ids = [azurerm_network_interface.nic-waf1.id]
+    vm_size               = var.waf_vm_size
+	
+    delete_os_disk_on_termination = true
+    delete_data_disks_on_termination = true
+
+    storage_os_disk {
+        name              = "osdisk_waf1"
+        caching           = "ReadWrite"
+        create_option     = "FromImage"
+        managed_disk_type = "Premium_LRS"
+    }
+
+    storage_image_reference {
+        publisher = "barracudanetworks"
+        offer     = "waf"
+        sku       = var.waf_sku
+        version   = "latest"
+    }
+	
+    os_profile {
+        computer_name  = var.waf1_vm_name
+        admin_username = "not_used"
+        admin_password = var.admin_password
+        custom_data = "{\"signature\": \"var.waf_signature\", \"email\": \"var.waf_email\", \"organization\": \"var.waf_organization\"}"
+    }
+
+    os_profile_linux_config {
+        disable_password_authentication = false
+    }
+}
+
+#create WAF2
+resource "azurerm_virtual_machine" "vm_waf2" {
+    name                  = var.waf2_vm_name
+    location              = var.location
+    plan {
+      publisher          = "barracudanetworks"
+      name               = var.waf_sku
+      product            = "waf"
+    }
+    
+    resource_group_name   = azurerm_resource_group.rg-lab.name
+    network_interface_ids = [azurerm_network_interface.nic-waf2.id]
+    vm_size               = var.waf_vm_size
+	
+    delete_os_disk_on_termination = true
+    delete_data_disks_on_termination = true
+
+    storage_os_disk {
+        name              = "osdisk_waf2"
+        caching           = "ReadWrite"
+        create_option     = "FromImage"
+        managed_disk_type = "Premium_LRS"
+    }
+
+    storage_image_reference {
+        publisher = "barracudanetworks"
+        offer     = "waf"
+        sku       = var.waf_sku
+        version   = "latest"
+    }
+	
+    os_profile {
+        computer_name  = var.waf1_vm_name
+        admin_username = "not_used"
+        admin_password = var.admin_password
+        custom_data = "{\"signature\": \"var.waf_signature\", \"email\": \"var.waf_email\", \"organization\": \"var.waf_organization\"}"
+    }
+
+    os_profile_linux_config {
+        disable_password_authentication = false
+    }
 }
