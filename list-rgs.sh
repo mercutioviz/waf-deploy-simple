@@ -9,6 +9,12 @@ location="$1"
 myrgs=`/usr/bin/az group list --query "[?location=='${location}']" | json_pp | jq -r '.[] | .name'`
 #echo "Found Resource Groups in $location:"
 #echo "$myrgs"
+if [ -z "$myrgs" ]
+then
+    echo "No RGs found in $location"
+    exit 0
+fi
+
 echo "Select your RG:"
 select rgsel in `echo ${myrgs}`;
 do
