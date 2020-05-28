@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Barracuda Cloud Virtual Appliance</title>
+    <link href="/provisioning.css" rel="stylesheet" />
+    <script src="/jquery.js"></script>
+  </head>
+  <body>
+	  <div class="content center">
+	  	<div class="logo"></div>
+	  	<center><p class="center">
+			Thank you! You will be redirected shortly as the system is starting up.
+	  	</p></center>
+
+	  	<div class="container center">
+		  	<div class="center">
+		  		<div class="activity">
+		  			<center>
+			  		<img src="/activity.gif">
+			  		<h3>Please wait while the system starts up...</h3>
+		  			</center>
+		  		</div>
+		  	</div>
+	  	</div>
+	  </div>
+    <div id="spincheck" style="position: fixed; bottom: 0px; right: 0px; background-color: white; display: none"></div>
+  </body>
+<script>
+  function go2Login(){
+    window.location.href="/";
+  }
+  setTimeout(go2Login, 10000);
+</script>
+</html>
