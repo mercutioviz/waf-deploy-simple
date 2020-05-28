@@ -171,7 +171,7 @@ DB_PASSWORD="$passwd"
 
 if [ ! -z "$prefix" ]
 then
-    rg_cgf="${prefix}-RG"
+    rg_cfg="${prefix}-RG"
 fi
 
 if [ "$type" = "new" ]
