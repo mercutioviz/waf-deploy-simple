@@ -159,14 +159,14 @@ resource "azurerm_public_ip" "waf1-pip" {
     name                         = var.waf1_pip_name
     location                     = var.location
     resource_group_name          = azurerm_resource_group.rg-lab.name
-    allocation_method            = "Dynamic"
+    allocation_method            = "Static"
 }
 
 resource "azurerm_public_ip" "waf2-pip" {
     name                         = var.waf2_pip_name
     location                     = var.location
     resource_group_name          = azurerm_resource_group.rg-lab.name
-    allocation_method            = "Dynamic"
+    allocation_method            = "Static"
 }
 
 # Create WAF ELB standard PIP
