@@ -395,3 +395,18 @@ resource "azurerm_virtual_machine" "vm_waf2" {
         disable_password_authentication = false
     }
 }
+
+output "WAF1 VM PIP" {
+    description = "WAF 1 temp public IP"
+    value       = azurerm_public_ip.waf1-pip.ip_address
+}
+
+output "WAF2 VM PIP" {
+    description = "WAF 2 temp public IP"
+    value       = azurerm_public_ip.waf2-pip.ip_address
+}
+
+output "WAF LB PIP" {
+    description = "WAF ELB public IP"
+    value       = azurerm_public_ip.waf-elb-pip.ip_address
+}
