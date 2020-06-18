@@ -1,0 +1,3 @@
+terraform/.terraform/plugins/windows_amd64/lock.json
+terraform/.terraform/plugins/windows_amd64/terraform-provider-azurerm_v1.43.0_x4.exe
+terraform/.terraform/plugins/windows_amd64/terraform-provider-random_v2.2.1_x4.exe
