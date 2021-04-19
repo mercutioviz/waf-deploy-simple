@@ -99,6 +99,12 @@ variable "waf2_vm_name" {
     description = "Enter the VM name for WAF 2 "
 }
 
+# LB Name
+variable "lb_name" {
+    type        = string
+    description = "Enter the name for WAF load balancer "
+}
+
 # WAF sku, i.e. byol or hourly
 variable "waf_sku" {
     type        = string
@@ -170,6 +176,7 @@ resource "azurerm_public_ip" "waf1-pip" {
     location                     = var.location
     resource_group_name          = azurerm_resource_group.rg-lab.name
     allocation_method            = "Static"
+    sku                          = "Standard"
 }
 
 resource "azurerm_public_ip" "waf2-pip" {
@@ -177,6 +184,7 @@ resource "azurerm_public_ip" "waf2-pip" {
     location                     = var.location
     resource_group_name          = azurerm_resource_group.rg-lab.name
     allocation_method            = "Static"
+    sku                          = "Standard"
 }
 
 # Create WAF ELB standard PIP
@@ -294,7 +302,7 @@ resource "azurerm_network_interface" "nic-waf2" {
     resource_group_name       = azurerm_resource_group.rg-lab.name
 
     ip_configuration {
-        name                          = "IPConfig1"
+        name                          = "IPConfig2"
         subnet_id                     = azurerm_subnet.waf-subnet-lab.id
         private_ip_address_allocation = "Dynamic"
         public_ip_address_id          = azurerm_public_ip.waf2-pip.id
@@ -318,6 +326,73 @@ resource "azurerm_storage_account" "sa_boot_diag" {
     location                    = var.location
     account_tier                = "Standard"
     account_replication_type    = "LRS"
+}
+
+# Create WAF external LB
+resource "azurerm_lb" "waf-elb" {
+  name                = var.lb_name
+  location            = var.location
+  sku                 = "Standard"
+  resource_group_name = azurerm_resource_group.rg-lab.name
+
+  frontend_ip_configuration {
+    name                 = "WAF-ELB-Frontend-IP-Config"
+    public_ip_address_id = azurerm_public_ip.waf-elb-pip.id
+  }
+}
+
+# Create WAF LB health probe
+resource "azurerm_lb_probe" "waf-health-probe" {
+  resource_group_name = azurerm_resource_group.rg-lab.name
+  loadbalancer_id     = azurerm_lb.waf-elb.id
+  name                = "waf-admin-ui-port-8000"
+  port                = 8000
+  protocol            = "Http"
+  request_path        = "/cgi-mod/index.cgi"
+}
+
+# Create backend pool for LB
+resource "azurerm_lb_backend_address_pool" "waf-backend-address-pool" {
+  loadbalancer_id     = azurerm_lb.waf-elb.id
+  name                = "wafBackEndAddressPool"
+}
+
+# Associate each WAF NIC with the ELB BE Address Pool
+resource "azurerm_network_interface_backend_address_pool_association" "nic1-be-pool-assoc" {
+  network_interface_id    = azurerm_network_interface.nic-waf1.id
+  ip_configuration_name   = "IPConfig1"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.waf-backend-address-pool.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "nic2-be-pool-assoc" {
+  network_interface_id    = azurerm_network_interface.nic-waf2.id
+  ip_configuration_name   = "IPConfig2"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.waf-backend-address-pool.id
+}
+
+# Create LB rules for ports 80 and 443
+resource "azurerm_lb_rule" "http80" {
+  resource_group_name            = azurerm_resource_group.rg-lab.name
+  loadbalancer_id                = azurerm_lb.waf-elb.id
+  name                           = "Http80"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "WAF-ELB-Frontend-IP-Config"
+  probe_id                       = azurerm_lb_probe.waf-health-probe.id
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.waf-backend-address-pool.id
+}
+
+resource "azurerm_lb_rule" "https443" {
+  resource_group_name            = azurerm_resource_group.rg-lab.name
+  loadbalancer_id                = azurerm_lb.waf-elb.id
+  name                           = "Https443"
+  protocol                       = "Tcp"
+  frontend_port                  = 443
+  backend_port                   = 443
+  frontend_ip_configuration_name = "WAF-ELB-Frontend-IP-Config"
+  probe_id                       = azurerm_lb_probe.waf-health-probe.id
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.waf-backend-address-pool.id
 }
 
 #create WAF1
@@ -397,6 +472,10 @@ resource "azurerm_linux_virtual_machine" "vm_waf2" {
     }
 
 }
+
+##########################################################################################################
+#                                               OUTPUTS                                                  #
+##########################################################################################################
 
 output "WAF1_VM_PIP" {
     description = "WAF 1 temp public IP"
