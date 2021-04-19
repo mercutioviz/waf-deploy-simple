@@ -1,11 +1,17 @@
-# Configure the Azure Provider
-provider "azurerm" {
-  # whilst the `version` attribute is optional, we recommend pinning to a given version of the Provider
-  version = "=1.43.0"
-}
-
 terraform {
   required_version = ">= 0.12"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>2.49.0"
+    }
+  }
+}
+
+# Configure the Microsoft Azure Provider
+provider "azurerm" {
+  features {}
+  subscription_id = "221db4e7-cf05-4f86-8e37-a13cdbd64c14"
 }
 
 ##########################################################################################################
@@ -155,7 +161,7 @@ resource "azurerm_subnet" "waf-subnet-lab" {
     name                 = var.vnet_name
     resource_group_name  = azurerm_resource_group.rg-lab.name
     virtual_network_name = azurerm_virtual_network.vnet-lab.name
-    address_prefix       = var.subnet_addr_prefix
+    address_prefixes     = [var.subnet_addr_prefix]
 }
 
 # Create WAF PIPs
@@ -315,89 +321,81 @@ resource "azurerm_storage_account" "sa_boot_diag" {
 }
 
 #create WAF1
-resource "azurerm_virtual_machine" "vm_waf1" {
+resource "azurerm_linux_virtual_machine" "vm_waf1" {
     name                  = var.waf1_vm_name
     location              = var.location
+    size                  = var.waf_vm_size
+    admin_username        = "not_used"
+    admin_password        = var.admin_password
+    disable_password_authentication = false
+    resource_group_name   = azurerm_resource_group.rg-lab.name
+    network_interface_ids = [azurerm_network_interface.nic-waf1.id]
+
+    os_disk {
+        name                 = "osdisk_waf1"
+        caching              = "ReadWrite"
+        storage_account_type = "Premium_LRS"
+    }
+
+    computer_name  = var.waf1_vm_name
+    custom_data = base64encode("{\"signature\": \"var.waf_signature\", \"email\": \"var.waf_email\", \"organization\": \"var.waf_organization\"}")
+
     plan {
       publisher          = "barracudanetworks"
       name               = var.waf_sku
       product            = "waf"
     }
-    
-    resource_group_name   = azurerm_resource_group.rg-lab.name
-    network_interface_ids = [azurerm_network_interface.nic-waf1.id]
-    vm_size               = var.waf_vm_size
-	
-    delete_os_disk_on_termination = true
-    delete_data_disks_on_termination = true
 
-    storage_os_disk {
-        name              = "osdisk_waf1"
-        caching           = "ReadWrite"
-        create_option     = "FromImage"
-        managed_disk_type = "Premium_LRS"
+    source_image_reference {
+      publisher = "barracudanetworks"
+      offer     = "waf"
+      sku       = var.waf_sku
+      version   = "latest"
     }
 
-    storage_image_reference {
-        publisher = "barracudanetworks"
-        offer     = "waf"
-        sku       = var.waf_sku
-        version   = "latest"
-    }
-	
-    os_profile {
-        computer_name  = var.waf1_vm_name
-        admin_username = "not_used"
-        admin_password = var.admin_password
-        custom_data = "{\"signature\": \"var.waf_signature\", \"email\": \"var.waf_email\", \"organization\": \"var.waf_organization\"}"
+    boot_diagnostics {
+        storage_account_uri = azurerm_storage_account.sa_boot_diag.primary_blob_endpoint
     }
 
-    os_profile_linux_config {
-        disable_password_authentication = false
-    }
 }
 
 #create WAF2
-resource "azurerm_virtual_machine" "vm_waf2" {
+resource "azurerm_linux_virtual_machine" "vm_waf2" {
     name                  = var.waf2_vm_name
     location              = var.location
+    size                  = var.waf_vm_size
+    admin_username        = "not_used"
+    admin_password        = var.admin_password
+    disable_password_authentication = false
+    resource_group_name   = azurerm_resource_group.rg-lab.name
+    network_interface_ids = [azurerm_network_interface.nic-waf2.id]
+
+    os_disk {
+        name                 = "osdisk_waf2"
+        caching              = "ReadWrite"
+        storage_account_type = "Premium_LRS"
+    }
+
     plan {
       publisher          = "barracudanetworks"
       name               = var.waf_sku
       product            = "waf"
     }
-    
-    resource_group_name   = azurerm_resource_group.rg-lab.name
-    network_interface_ids = [azurerm_network_interface.nic-waf2.id]
-    vm_size               = var.waf_vm_size
-	
-    delete_os_disk_on_termination = true
-    delete_data_disks_on_termination = true
 
-    storage_os_disk {
-        name              = "osdisk_waf2"
-        caching           = "ReadWrite"
-        create_option     = "FromImage"
-        managed_disk_type = "Premium_LRS"
-    }
+    computer_name  = var.waf2_vm_name
+    custom_data = base64encode("{\"signature\": \"var.waf_signature\", \"email\": \"var.waf_email\", \"organization\": \"var.waf_organization\"}")
 
-    storage_image_reference {
-        publisher = "barracudanetworks"
-        offer     = "waf"
-        sku       = var.waf_sku
-        version   = "latest"
+    source_image_reference {
+      publisher = "barracudanetworks"
+      offer     = "waf"
+      sku       = var.waf_sku
+      version   = "latest"
     }
-	
-    os_profile {
-        computer_name  = var.waf1_vm_name
-        admin_username = "not_used"
-        admin_password = var.admin_password
-        custom_data = "{\"signature\": \"var.waf_signature\", \"email\": \"var.waf_email\", \"organization\": \"var.waf_organization\"}"
+ 
+    boot_diagnostics {
+        storage_account_uri = azurerm_storage_account.sa_boot_diag.primary_blob_endpoint
     }
 
-    os_profile_linux_config {
-        disable_password_authentication = false
-    }
 }
 
 output "WAF1_VM_PIP" {
@@ -413,4 +411,14 @@ output "WAF2_VM_PIP" {
 output "WAF_LB_PIP" {
     description = "WAF ELB public IP"
     value       = azurerm_public_ip.waf-elb-pip.ip_address
+}
+
+output "WAF1_Custom_Data" {
+    description = "WAF1 Custom data, base64 decoded"
+    value       = base64decode(azurerm_linux_virtual_machine.vm_waf1.custom_data)
+}
+
+output "WAF2_Custom_Data" {
+    description = "WAF2 Custom data, base64 decoded"
+    value       = base64decode(azurerm_linux_virtual_machine.vm_waf2.custom_data)
 }
