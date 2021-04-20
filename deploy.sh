@@ -24,11 +24,12 @@ DEPLOY_LOCATION='eastus2'
 DEPLOY_PREFIX=''
 DEPLOY_TYPE=''
 RESOURCE_GROUP='rg-cuda-waf'
+VNET_NAME=''
 CLOUD='Azure'
 CLOUD_FOUND='False'
 
-if ! options=$(getopt -o hdvr:p:l:c:t: \
-        -l help,debug,verbose,rg:,password:,location:,cloud:,type: \
+if ! options=$(getopt -o hdvr:p:l:c:t:n \
+        -l help,debug,verbose,rg:,password:,location:,cloud:,type:vnet: \
         -- "$@") #"
 then
     # something went wrong, getopt will put out an error message for us
@@ -52,6 +53,7 @@ do
     -p|--password) DEPLOY_PASSWORD="$2" ; shift;;
     -c|--cloud) CLOUD="$2" ; shift;;
     -t|--type) DEPLOY_TYPE="$2" ; shift;;
+    -n|--vnet) VNET_NAME="$2" ; shift;;
     (--) shift; break;;
     (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
     (*) break;;
@@ -72,6 +74,14 @@ else
     echo "Did not find commands for cloud: $CLOUD"
     exit 1
 fi
+
+# Start collecting info from this subscription
+echo "Reading RGs..."
+rg_list=''
+get_resource_groups
+echo "Reading VNets..."
+vnet_list=''
+get_vnets
 
 ## Choose deployment type: new or existing infrastructure?
 if [ -z "$DEPLOY_TYPE" ]
@@ -193,14 +203,6 @@ then
     # Input VNet/VPC name
 
 else
-    # Start collecting info from this subscription
-    echo "Reading RGs..."
-    rglist=''
-    get_resource_groups
-    echo "Reading VNets..."
-    vnetlist=''
-    get_vnets
-
     # List available RGs and select
     echo "Select RG:"
     my_selection=''
