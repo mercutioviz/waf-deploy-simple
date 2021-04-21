@@ -63,7 +63,7 @@ function get_resource_groups() {
     case "$CLOUD" in
     Azure)
         # Get Azure RGs
-        rglist=`/usr/bin/az group list --query "[?location=='${location}']" | json_pp | jq -r '.[] | .name'`
+        rg_list=`/usr/bin/az group list --query "[?location=='${location}']" | json_pp | jq -r '.[] | .name'`
         ;;
     AWS)
         # Get AWS RGs
@@ -83,7 +83,7 @@ function get_vnets() {
     #
     vnet_json=`az network vnet list --query "[?location=='${location}']" | json_pp`
     #dprint "VNet JSON data: ${vnet_json}"
-    vnetlist=`echo "${vnet_json}" | jq -r '.[] | .name'`
+    vnet_list=`echo "${vnet_json}" | jq -r '.[] | .name'`
     dprint "VNet list: ${vnet_list}"
     vnet_count=`echo "${vnet_json}" | jq -r '. | length'`
     
