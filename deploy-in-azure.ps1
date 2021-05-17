@@ -83,3 +83,28 @@ if ( $noninteractive -eq $false ) {
     }
 }
 Write-Host "HA Deployment: " $ha -ForegroundColor Green
+
+Write-Host "Gathering information about your Azure environment..."
+$vnets = get_vnets
+$rg_list = get_rg_list
+$nics = get_nics
+
+# Initialize variables that we need for building the Terraform tfvars file
+$rg_name = ''
+$vnet_name = ''
+$vnet_addr_space = ''
+$device_subnet_name = ''
+$device_subnet_cidr = ''
+$device1_ip_addr = ''
+$device2_ip_addr = ''
+$subnet_nsg = @{}
+
+# Identify specific items to deploy
+if ( $deploy_method -eq 'new' ) {
+    # New deploy, ask user for items that haven't already been specified
+    $rg_name = Read-Host "Enter name of resource group (RG) to create"
+} else {
+    # Use existing- show user what is in Azure env and let them choose
+    ## Here is a list of RGs, VNets, Subnets, resources
+
+}

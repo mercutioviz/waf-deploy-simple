@@ -15,3 +15,20 @@ function get_vnets {
     $vnets = $vnet_json | ConvertFrom-Json
     return $vnets
 }
+function get_nics {
+    param (
+        $location
+    )
+    $nic_json=az network nic list --query "[?location=='${location}']" | json_pp
+    $nics = $nic_json | ConvertFrom-Json
+    return $nics
+}
+function get_rgs {
+    param (
+        $location
+    )
+    $rg_json=az group list --query "[?location=='${location}']" | json_pp
+    $rgs = $rg_json | ConvertFrom-Json
+    return $rgs
+}
+
