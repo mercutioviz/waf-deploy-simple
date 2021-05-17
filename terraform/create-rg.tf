@@ -425,7 +425,7 @@ resource "azurerm_linux_virtual_machine" "vm_waf1" {
       publisher = "barracudanetworks"
       offer     = "waf"
       sku       = var.waf_sku
-      version   = "latest"
+      version   = var.waf_version
     }
 
     boot_diagnostics {
@@ -464,7 +464,7 @@ resource "azurerm_linux_virtual_machine" "vm_waf2" {
       publisher = "barracudanetworks"
       offer     = "waf"
       sku       = var.waf_sku
-      version   = "latest"
+      version   = var.waf_version
     }
  
     boot_diagnostics {
