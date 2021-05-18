@@ -11,7 +11,7 @@ terraform {
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
   features {}
-  subscription_id = "221db4e7-cf05-4f86-8e37-a13cdbd64c14"
+  subscription_id = var.sub_id
 }
 
 ##########################################################################################################
@@ -22,6 +22,12 @@ provider "azurerm" {
 variable "rg_name" {
   type        = string
   description = "Enter the name of the resource group to create"
+}
+
+# Subscription ID
+variable "sub_id" {
+  type        = string
+  description = "What Azure subscription id shall we use?"
 }
 
 # Location
@@ -115,6 +121,12 @@ variable "waf_sku" {
 variable "waf_vm_size" {
     type        = string
     description = "Enter the WAF VM size (DS1_v2, DS2_v2, etc.) "
+}
+
+# WAF version, i.e. "latest","10.0.1", etc.
+variable "waf_version" {
+    type        = string
+    description = "Enter the WAF version ('latest', '10.0.002002', etc.)"
 }
 
 # Admin password
@@ -495,9 +507,11 @@ output "WAF_LB_PIP" {
 output "WAF1_Custom_Data" {
     description = "WAF1 Custom data, base64 decoded"
     value       = base64decode(azurerm_linux_virtual_machine.vm_waf1.custom_data)
+    sensitive = true
 }
 
 output "WAF2_Custom_Data" {
     description = "WAF2 Custom data, base64 decoded"
     value       = base64decode(azurerm_linux_virtual_machine.vm_waf2.custom_data)
+    sensitive = true
 }

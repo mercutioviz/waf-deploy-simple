@@ -15,6 +15,7 @@ function get_vnets {
     $vnets = $vnet_json | ConvertFrom-Json
     return $vnets
 }
+
 function get_nics {
     param (
         $location
@@ -23,6 +24,7 @@ function get_nics {
     $nics = $nic_json | ConvertFrom-Json
     return $nics
 }
+
 function get_rgs {
     param (
         $location
@@ -32,3 +34,8 @@ function get_rgs {
     return $rgs
 }
 
+function get_regions {
+    $region_json=az account list-locations | json_pp
+    $regions = $region_json | ConvertFrom-Json
+    return $regions
+}

@@ -23,6 +23,9 @@ param(
     $product
 )
 
+# Import functions
+Import-Module ./functions.psm1
+
 if ( $noninteractive -eq $true ) {
     $nogreeting = $true
 }
